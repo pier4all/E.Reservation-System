@@ -1,0 +1,107 @@
+openapi: 3.0.0
+info:
+  version: '1'
+  title: Reservationssystem API
+  description: 'API for "PA-Reservationssystem"'
+servers:
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/Delcoer/Reservation/1  
+paths: 
+  /reservation:
+    post:
+      operationId: 'postReservation'
+      tags: 
+        - Reservation
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReservationItem'
+      responses:
+        201:
+          description: Create a reservation
+    get:
+      operationId: 'getReservation'
+      tags:
+        - Reservation
+      responses:
+        200:
+          description: Get a array with all reservations
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ReservationItem'
+ 
+  /reservation/{date}:   
+      parameters:
+        - name: date
+          in: path
+          required: true
+          schema: 
+            type: string
+      get:
+        operationId: 'getReservationRessource'
+        tags:
+          - Specific reservation
+        responses:
+          200:
+            description: Get all free ressources
+            
+  /reservation/{ressource}:   
+      parameters:
+        - name: ressource
+          in: path
+          required: true
+          schema: 
+            type: string
+      get:
+        operationId: 'getReservationDate'
+        tags:
+          - Specific reservation
+        responses:
+          200:
+            description: Get all free ressources
+  
+  /reservation/ressource{id}: 
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: 
+            type: integer
+      delete: 
+        operationId: 'deleteReservation'
+        tags:
+          - Specific reservation
+        responses:
+          200:
+            description: Reservation deleted (with id) 
+
+components:
+  schemas:
+    ReservationItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 11
+        name:
+          type: string
+          example: Meier
+        lastname:
+          type: string
+          example: Kurt
+        email:
+          type: string
+          example: meier@pa.com
+        date:
+          type: string
+          example: 01.02.23
+        time:
+          type: string
+          example: 12:30
+        ressource:
+          type: string
+          example: Vault76
