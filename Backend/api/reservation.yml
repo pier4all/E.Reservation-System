@@ -5,12 +5,12 @@ info:
   description: 'API for "PA-Reservationssystem"'
 servers:
   - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/Delcoer/Reservation/1  
-paths: 
+    url: https://virtserver.swaggerhub.com/Delcoer/Reservation/1
+paths:
   /reservation:
     post:
       operationId: 'postReservation'
-      tags: 
+      tags:
         - Reservation
       requestBody:
         content:
@@ -33,13 +33,13 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/ReservationItem'
- 
-  /reservation/{date}:   
+
+  /reservation/date/{date}:
       parameters:
         - name: date
           in: path
           required: true
-          schema: 
+          schema:
             type: string
       get:
         operationId: 'getReservationRessource'
@@ -48,13 +48,13 @@ paths:
         responses:
           200:
             description: Get all free ressources
-            
-  /reservation/{ressource}:   
+
+  /reservation/ressource/{ressource}:
       parameters:
         - name: ressource
           in: path
           required: true
-          schema: 
+          schema:
             type: string
       get:
         operationId: 'getReservationDate'
@@ -63,21 +63,21 @@ paths:
         responses:
           200:
             description: Get all free ressources
-  
-  /reservation/ressource{id}: 
+
+  /reservation/{id}:
       parameters:
         - name: id
           in: path
           required: true
-          schema: 
-            type: integer
-      delete: 
+          schema:
+            type: string
+      delete:
         operationId: 'deleteReservation'
         tags:
           - Specific reservation
         responses:
           200:
-            description: Reservation deleted (with id) 
+            description: Reservation deleted (with id)
 
 components:
   schemas:
@@ -85,7 +85,7 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
           example: 11
         name:
           type: string

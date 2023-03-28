@@ -1,19 +1,6 @@
 <script>
-  import {
-    addWeeks,
-    getDate,
-    addDays,
-    addMinutes,
-    addHours,
-    getDaysInMonth,
-    add,
-    getWeek,
-    format,
-    getTime,
-    getHours,
-    getDay,
-  } from "date-fns";
-  import { getAllReservations, getDateByRessource } from "../requests";
+  import { addWeeks, getDate, addDays, addMinutes,addHours,getDaysInMonth,add,getWeek,format,getTime,getHours,getDay,} from "date-fns";
+  import { getAllReservations, getReservationByDate, getReservationByRessource } from "../requests";
   import Confirmation from "./Confirmation.svelte";
   export let selectedDate;
   export let selectedRessource;
@@ -25,31 +12,38 @@
   export let userEmail;
   export let emailAdmin;
   export let nameCompany;
-  export let deleteRessourceToggle;
+  export let selection
   let calenderEndDate;
   let calenderStartDate;
   let startDate;
   let endDate;
-  let daysCalendar = [];
   let appointmentsArray = [];
   let pickedDate = false;
-  let pickedRessource = false;
   let allReservations = [];
   let allBookedRessources = [];
   let selectedAppointment;
   let confirmationToggle = false;
+  let daysCalendar = []
+  
+  $: if(selection) {
+    console.log("Selection:",selection)
+   }
+    // $: reactivity, if(variable changes) then....
+  $: if(selectedRessource){
+    console.log(selectedRessource)
+    createDaysForRessource()
+    createAppointments()
+    getReservations()
+ 
+  }
 
-  // getByRessource und getByDate =>
-
-  // $: reactivity, if(variable changes) then....
-  $: if (selectedRessource) pickedRessource = true;
-  $: if (selectedDate) {
-    pickedDate = true;
+  $: if(selectedDate) {
+    selectedRessource = null
+    pickedDate = true
     confirmationToggle = false;
     appointmentsArray = [];
-  }
-  $: if (selectedDate) {
-    const state = handleSelectedDate();
+    handleSelectedDate()
+    getReservations()
   }
 
   /**
@@ -57,17 +51,16 @@
    * @param {bool} stateCalendarText
    * @param {bool} stateAppointments
    */
-  const handleSelectedDate = (
-    stateDay,
-    stateCalendarText,
-    stateAppointments
-  ) => {
+  const handleSelectedDate = (stateDay,stateCalendarText,stateAppointments ) => {
+    confirmationToggle = false
     stateCalendarText = creatingCalendarText();
     stateDay = creatingCalendarDays();
+
+    console.log("cal", stateDay)
     stateAppointments = createAppointments(appointmentLenght, workingHours);
     if (stateCalendarText === true && stateDay === true)
       return "calendar created";
-    else return "failed to create calendar";
+      else return "failed to create calendar";
   };
 
   /**
@@ -75,14 +68,15 @@
    * @param {number} appointmentLenght
    * @param {number} workingHours
    */
-  const createAppointments = (appointmentLenght, workingHours) => {
+  const createAppointments = () => {
+    appointmentsArray = []
     let time = workingHours / appointmentLenght;
     //time = Math.round(time * 100)
     let timeCalculated = calculateTime(appointmentLenght);
     for (let i = 0; i < time; i++) {
       let appointment = {
         slot: i,
-        time: (timeCalculated = addMinutes(timeCalculated, appointmentLenght)),
+        time: timeCalculated = addMinutes(timeCalculated, appointmentLenght),
       };
       appointmentsArray.push(appointment);
     }
@@ -108,18 +102,6 @@
     return time;
   };
 
-  // for creates the days for the calender
-  const creatingCalendarDays = () => {
-    for (let i = 0; i < 14; i++) {
-      let day;
-      let dayCalendar = {
-        weekDay: (day = addDays(calenderStartDate, i)),
-      };
-      daysCalendar.push(dayCalendar);
-    }
-    return true;
-  };
-
   // creates the title text for the calendar
   const creatingCalendarText = () => {
     daysCalendar = [];
@@ -136,9 +118,9 @@
    * @param {object} ressource
    * @param {date}   dayCalendar
    */
-  const selectAppointment = (appointmentTime, ressource, dayCalendar) => {
-    let time = format(getTime(appointmentTime), "HH:mm");
-    let day = format(dayCalendar.weekDay, "dd.MM.yy");
+  const selectAppointment = (appointment, ressource, selectedDay) => {
+    let time = format(getTime(appointment), "HH:mm");
+    let day = format(selectedDay.weekDay,"dd.MM.yy");
     selectedAppointment = {
       appId: Math.random(),
       appTime: time,
@@ -152,48 +134,151 @@
   // setting toggle
   const handleBooked = () => {
     confirmationToggle = false;
+    getAllReservations().then(result => reservations = result)
   };
+
+  // filtering Appointments By selected Ressource
+  const filterAppointmentByRessource = (ressource, day, time) => {
+    return reservations
+      ? reservations.find(res => {
+        res = res[1]
+        const appRes = ressource.name
+        const appDay = format(day.weekDay,"dd.MM.yy" )
+        const appTime = format(getTime(time), "HH:mm")
+        console.log(appRes, res.appRes, appDay, res.appDay, appTime, res.appTime)
+        return res.appDay === appDay && res.appRes === appRes && res.appTime === appTime
+      })
+      : false
+  }
+
+  let reservations
+  const createDaysForRessource = () => {
+    //ressource
+    console.log("Create Day")
+    daysCalendar = [];
+    let actualDay = new Date()
+    startDate = new Date()
+    startDate = format(startDate,"dd.MM.yy" )
+    endDate = addDays(new Date(), 13)
+    endDate = format(endDate, "dd.MM.yy" )
+    for (let i = 0; i < 14; i++) {
+
+      let day = {
+        weekDay: addDays(actualDay, i)
+      };
+      daysCalendar.push(day);
+    }
+    console.log("daysCalendar Ressource:", daysCalendar)
+    return daysCalendar
+  }
+
+  const creatingCalendarDays = () => {
+    //ressource
+    console.log("Create Day")
+    let daysCalendar = [];
+      let day = {
+        weekDay: selectedDate
+      };
+      daysCalendar.push(day);
+    console.log("daysCalendar Ressource:", daysCalendar)
+    return daysCalendar
+  }
+
+
+const getReservations = async () => {
+  reservations = await getAllReservations()
+  console.log("all reservationa", reservations)
+ }
+
+getReservations()
 </script>
 
-<!-- Logik des Kalenders ?-->
-{#await getAllReservations() then reservations}
-  <m-box id="calendarBox">
-    {#if confirmationToggle === true}
-      <Confirmation on:Booked={handleBooked} {selectedAppointment} {userName} {userSurname} {emailAdmin} {nameCompany}/>
-    {/if}
-    {#if pickedDate === true && confirmationToggle === false}
-      <m-row id="selectedDateCalendar">
-        <h3 id="calendarTitleDate">
-          {"Termine von " + startDate + " bis " + endDate}
-        </h3>
-      </m-row>
-      <m-row id="calendarDayRow">
-        {#each daysCalendar as dayCalendar}
-          {#each ressourceArray as ressource}
-            {#if format(dayCalendar.weekDay, "E") !== "Sun" && format(dayCalendar.weekDay, "E") !== "Sat"}
+<!-- for picked Ressource-->
+{#key reservations}
+ <p>{JSON.stringify(reservations)}</p>
+  {#if selection === "Ressource"}
+  <!---->
+    <m-box id="calendarBox">
+      {#if confirmationToggle === true}
+        <Confirmation on:Booked={handleBooked} {selectedAppointment} {userName} {userSurname} {emailAdmin} {nameCompany}/>
+      {/if}
+        <m-row id="selectedDateCalendar">
+          <h3 id="calendarTitleDate">
+            {"Termine von " + startDate + " bis " + endDate}
+          </h3>
+        </m-row>
+        <m-row id="calendarDayRow">
+          {#each createDaysForRessource() as day}
+            {#each ressourceArray as ressource}
+              <!--{#if format(dayCalendar.weekDay, "E") !== "Sun" && format(dayCalendar.weekDay, "E") !== "Sat"}-->
               {#if ressource === selectedRessource}
-                <div id="dayCalendar">
-                  <m-box id="dayDateBox">
-                    <m-row id="weekDayCol">
-                      {format(dayCalendar.weekDay, "E") + " " + format(dayCalendar.weekDay, "dd.MM.yy")}
-                    </m-row>
-                    <h4 id="ressourceTitel">{ressource.name}</h4>
-                    {#each appointmentsArray as appointment}
-                      <!-- find()-->
-                      <div id="selectOption" value={appointment.time} on:click={() => selectAppointment(appointment.time,ressource,dayCalendar )}>
-                        {format(appointment.time, "HH:mm")}
-                      </div>
-                    {/each}
-                  </m-box>
-                </div>
-              {/if}
-            {/if}
+                  <div id="dayCalendar">
+                    <m-box id="dayDateBox">
+                      <m-row id="weekDayCol">
+                        {format(day.weekDay, "E") + " " + format(day.weekDay, "dd.MM.yy")}
+                        </m-row>
+                      <h4 id="ressourceTitel">{ressource.name}</h4>
+                      {#each appointmentsArray as appointment}
+                        {#if filterAppointmentByRessource(selectedRessource, day, appointment.time)}
+                          <div style="background-color: red;" id="selectOption" value={appointment.time}>
+                            {format(appointment.time, "HH:mm")}
+                          </div>
+                        {:else}
+                        <div id="selectOption" value={appointment.time} on:click={() => selectAppointment(appointment.time, ressource , day )}>
+                          {format(appointment.time, "HH:mm")}
+                        </div>
+                        {/if}
+                      {/each}
+                    </m-box>
+                  </div>  
+                  {/if}
+            {/each}
           {/each}
+        </m-row>
+    </m-box> 
+  {/if}
+  
+<!--for picked Date-->
+  {#if selection === "Datum"}
+    <m-box id="calendarBox">
+  {#if confirmationToggle === true}
+    <Confirmation on:Booked={handleBooked} {selectedAppointment} {userName} {userSurname} {emailAdmin} {nameCompany}/>
+  {/if}
+  {#if confirmationToggle === false}
+    <m-row id="selectedDateCalendar">
+    </m-row>
+    <m-row id="calendarDayRow">
+      {#if selectedDate}
+      {#each creatingCalendarDays() as dayCalendar}
+        {#each ressourceArray as ressource}
+          {#if format(dayCalendar.weekDay, "E") !== "Sun" && format(dayCalendar.weekDay, "E") !== "Sat"}
+              <div id="dayCalendar">
+                <m-box id="dayDateBox">
+                  <m-row id="weekDayCol">
+                    {format(dayCalendar.weekDay, "E") + " " + format(dayCalendar.weekDay, "dd.MM.yy")}
+                  </m-row>
+                  {#each appointmentsArray as appointment}
+                  {#if filterAppointmentByRessource(ressource, dayCalendar, appointment.time)}                 
+                    <div style="background-color: red;" id="selectOption" value={appointment.time} >
+                      { JSON.stringify(ressource.name) + " : " + format(appointment.time, "HH:mm")}
+                    </div>
+                  {:else}
+                    <div id="selectOption" value={appointment.time} on:click={() => selectAppointment(appointment.time,ressource,dayCalendar )}>
+                      { JSON.stringify(ressource.name) + " : " + format(appointment.time, "HH:mm")}
+                    </div>
+                {/if}
+                  {/each}
+                </m-box>
+              </div>
+            {/if}
         {/each}
-      </m-row>
-    {/if}
-  </m-box>
-{/await}
+      {/each}
+      {/if}
+    </m-row>
+  {/if}
+</m-box> 
+  {/if}
+{/key}
 
 <style>
   #calendarBox {

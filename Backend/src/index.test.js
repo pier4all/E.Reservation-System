@@ -17,29 +17,37 @@ describe('express', () => {
   });
 
   afterAll(() => process.kill(-start.pid));
+  let reservationId, ressource = "100", resDate = new Date()
 
-  // different tests 
-  test('GET /reservation returns 200 with matched operation', async () => {
+  // different tests
+  test('POST /reservation returns 201', async () => {
+    const res = await client.post('/reservation', {date: resDate, ressource});
+    expect(res.status).toBe(201);
+    expect(res.data.status).toEqual("reservation booked!");
+    reserverationId = res.data.id
+  });
+  test('GET /reservation returns 200', async () => {
     const res = await client.get('/reservation');
     expect(res.status).toBe(200);
-    expect(res.data).toEqual({ operationId: 'getReservation' });
+    expect(res.data.status).toEqual("reservations found");
+    expect(res.data.reservations[0].id).toEqual(reservationId);
   });
-
-  test('GET /reservation/ returns 200 with matched operation', async () => {
-    const res = await client.get('/reservation/1');
+  test('GET /reservation/ressource returns 200', async () => {
+    const res = await client.get('/reservation/ressource/'+ressource);
     expect(res.status).toBe(200);
-    expect(res.data).toEqual({ operationId: 'getReservationById' });
-  });
+    expect(res.data.status).toEqual("reservations found");
+    expect(res.data.reservations[0].id).toEqual(reservationId);
+});
+test('GET /reservation/date returns 200', async () => {
+  const res = await client.get('/reservation/date/'+resDate);
+  expect(res.status).toBe(200);
+  expect(res.data.status).toEqual("reservations found");
+  expect(res.data.reservations[0].id).toEqual(reservationId);
+});
+test('DELETE /reservation returns 200', async () => {
+    const res = await client.delete('/reservation/'+reservationId);
+    expect(res.status).toBe(200);
+    expect(res.data.status).toEqual("reservation deleted");
+});
 
-  test('GET /reservation/1a returns 400 with validation error', async () => {
-    const res = await client.get('/reservation/1a');
-    expect(res.status).toBe(400);
-    expect(res.data).toHaveProperty('err');
-  });
-
-  test('GET /unknown returns 404', async () => {
-    const res = await client.get('/unknown');
-    expect(res.status).toBe(404);
-    expect(res.data).toHaveProperty('err');
-  });
 });

@@ -20,6 +20,7 @@
   let userSurname;
   let deleteRessourceToggle= false
   let workingHours = 8 * 60;
+  let selection;
   //for demo
 
   $: if(ressourceArray) console.log("Array:", ressourceArray)
@@ -70,6 +71,7 @@
    * @param event
    */
   const handleSelectedRessource = (event) => {
+    console.log(event.detail)
     selectedRessource = event.detail.selectedRessource
   }
 
@@ -119,12 +121,24 @@
    * @param event
    */
   const handleLogout = (event) => {
+    console.log(event.detail)
     userCheck = false
     adminButtonToggle = true
     deleteRessourceToggle = true
     ressourceArray = []
+    emailAdmin = event.detail
     selectedDate = null
   }
+
+  /**
+   *  handles event from DateRessourcePicker
+   */
+  
+  const handleSelection = (event) => {
+    console.log(event)
+    selection = event.detail
+  }
+
 
 </script>
 
@@ -156,15 +170,15 @@
     </m-row>
       {#if userCheck === true}
         {#if adminToggle === false}
-          <DateRessourcePicker 
+          <DateRessourcePicker
+          on:selection={handleSelection}
           on:logout={handleLogout} 
           on:selectedDate={handleSelectedDate} 
           on:selectedRessource={handleSelectedRessource} 
-          {nameCompany} {userEmail} {userName} {userSurname} {ressourceArray}/>
+          {nameCompany} {userEmail} {userName} {userSurname} {ressourceArray} {emailAdmin}/>
         {/if}
-        {#if selectedDate != undefined && adminToggle === false}
-          <Calendar 
-          {appointmentLenght} {ressourceArray} {workingHours} {selectedDate} {selectedRessource} {userName} {userSurname} {userEmail} {emailAdmin} {nameCompany} {deleteRessourceToggle}/>
+        {#if (selectedRessource != undefined || selectedDate != undefined) && adminToggle === false}
+          <Calendar {appointmentLenght} {selection} {ressourceArray} {workingHours} {selectedDate} {selectedRessource} {userName} {userSurname} {userEmail}/>
         {/if}
       {/if}
     </m-box>
@@ -172,10 +186,6 @@
 
 
 <style>
-  #appContainer {
-    margin-top: 4%;
-    min-width: 500px;
-  }
 
   #appBox {
     background-color: rgb(176, 239, 236);

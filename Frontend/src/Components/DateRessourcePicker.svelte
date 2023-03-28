@@ -1,6 +1,5 @@
 <script>
   import { getAllReservations, deleteReservation } from "../requests";
-  import LogoutButton from "./Buttons/LogoutButton.svelte";
   import { createEventDispatcher } from "svelte";
   const dispatch = createEventDispatcher();
   export let userEmail;
@@ -8,10 +7,39 @@
   export let userSurname;
   export let nameCompany;
   export let ressourceArray = [];
-  let selectedRessource = null;
+  export let emailAdmin
+  let reservations;
+  let selectedRessource;
   let dateInput;
   let selectedDate;
   let reservationToggle = false;
+  let selectedRadioDate = false
+  let selectedRadioRessource = false
+  let radioValue;
+  let selection = [];
+  const options = [
+    "Ressource",
+    "Datum"
+  ] 
+
+  /**
+   * reactivity, if selection changes
+   */
+  $: if(selection){
+    console.log(selection)
+      if(selection === "Ressource"){
+        selectedRadioRessource = true
+        selectedRadioDate = false
+      }
+      if(selection === "Datum"){
+        selectedRadioDate = true
+        selectedRadioRessource = false
+      }
+      dispatch("selection", selection)
+    }
+  
+
+ 
 
   /**
     *  reactive, if dateInput changes
@@ -24,7 +52,7 @@
   }
 
   /**
-   * 
+   * reactivity, if selectedRessource changes
    */
   $: if (selectedRessource) {
     dispatch("selectedRessource", {
@@ -45,13 +73,21 @@
    * setting visibility toggle, for booked reservations
    */
   const anzeigeClick = () => {
-    if(reservationToggle === false) reservationToggle = true
-    else reservationToggle = false
+    reservationToggle = !reservationToggle
+    getAllReservations().then(res => reservations = res)
   };
+  /**
+   * handles the logout event click
+   */
+  const handleLogout = () => {
+          dispatch("logout", emailAdmin)
+      }
 </script>
 
-{#await getAllReservations() then reservations}
-<LogoutButton on:logout />
+
+<div id="buttonDiv">
+  <button on:click={handleLogout}>LogOut</button>
+</div>
   <m-box id="userInformationOuterBox">
     <m-row>
       <m-col class="infoCol">
@@ -67,14 +103,14 @@
             <h3>Bereits gebuchte Termine</h3>
             {#if reservationToggle === true}
             {#if reservations != null}
-              {#each reservations as reservation}
+              {#each reservations as [id, res]}
                 <div>
                   <m-col>
-                        {JSON.stringify(reservation[0])}
+                        {res.appDay + " / " + res.appTime + " / " + res.appRes}
                   </m-col>
                   <m-col>
                         <button
-                        on:click={() => deleteBookedReservation(reservation[0])}
+                        on:click={() => deleteBookedReservation(id)}
                         id="deleteReservationButton">X</button>
                   </m-col>
                 </div>
@@ -95,26 +131,38 @@
     <m-row id="textPickerRow">
       <h2 id="pickerTitle">Datum oder Ressource für neuen Termin bei {nameCompany} wählen:</h2>
     </m-row>
+    <m-row center>
+      <m-col>
+    {#each options as option}
+	    <label>
+		    <input type="radio" bind:group={selection} name="selection" value={option}>
+		    {option}
+	    </label>
+    {/each}
+      </m-col>
+    </m-row>
+    {#if selectedRadioDate === true && selection.length != 0 }
     <m-row id="dateRessourcePickerRow" center>
       <m-col id="datePickerCol">
         <input id="dateInput" type="date" bind:value={dateInput} />
       </m-col>
-      </m-row>
-      <m-row center>
+    </m-row>
+    {/if}
+    {#if selectedRadioRessource === true && selection.length != 0}
+    <m-row center>
       <m-col id="selectRessourceCol">
-        <select
-          id="selectRessource"
-          name="users"
-          bind:value={selectedRessource}>
+        <select id="selectRessource" name="users" bind:value={selectedRessource}>
+          <option value="">"Bitte wählen"</option>
           {#each ressourceArray as ressource}
             <!--iterates array and setting every ressource as a select option-->
-            <option value={ressource}>{(ressource.name)}</option>
+             <option value={ressource}>{(ressource.name)}</option>
           {/each}
         </select>
       </m-col>
-      </m-row>
+    </m-row>
+    {/if}
   </m-box>
-{/await}
+
 
 <style>
     
@@ -225,4 +273,17 @@
     height: 30px;
     margin-top: 5%;
   }
+
+  #buttonDiv {
+            text-align: right;
+      }
+      button {
+            background-color: rgb(26, 26, 25);
+            color: aliceblue;
+            height: 50px;
+            width: 80px;
+            margin-left: 1%;
+            margin-bottom: 2%;
+            font-size: large;
+      }
 </style>
