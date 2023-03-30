@@ -5,11 +5,9 @@
   let userName = "";
   let userSurname = "";
   let status = true;
-  let regex = /^([a-zA-Z0-9\._]+)@([a-a-zA.Z0-9])+.([a-z]+)(.[a-z]+)?$/
-  let regex2 = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/
 
   /**
-   * 1. checking storage if not empty for iteration
+   * 1. checking storage if its not empty for iteration
    * 2. checking if user is registrated.
    * 3. if not registrated set toogle for registration
    * @param {string} userEmail
@@ -23,10 +21,8 @@
         let users = [];
         users = { ...localStorage };
         for (const key in users) {
-              console.log(users[key])
           const user = JSON.parse(users[key]);
           if (user.email === userEmail) {
-              console.log("userExist!!!")
             userName = user.name;
             userSurname = user.surname;
             // activate datepicker, user exists!!!
@@ -39,7 +35,6 @@
             break;
           } 
           else {
-            console.log("user not found");
             status = false;
           }
         }
@@ -111,7 +106,6 @@
    */
   function validateText(userName, userSurname) {
     if (/^[a-z][a-zA-Z]*$/.test(userName && userSurname)){
-      console.log(true)
       return true
     }
     else{
@@ -121,7 +115,6 @@
   }
 
 </script>
-
 
 <m-box id="checkUserBox">
   <m-row id="titleRow">

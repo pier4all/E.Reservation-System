@@ -19,18 +19,17 @@
   let userName;
   let userSurname;
   let deleteRessourceToggle= false
-  let workingHours = 8 * 60;
   let selection;
-  //for demo
 
+  // pre defined 
+  let workingHours = 8 * 60;
+  
   $: if(ressourceArray) console.log("Array:", ressourceArray)
 
   // handles AdminButton click event
   const handleAdminClick = (event) => {
     storageUser = Object.entries({...localStorage});
     if (adminToggle === false) adminToggle = true;
-
-    // BOOL setzen !!!
   };
 
   const handleCheck = (event) => {
@@ -144,7 +143,7 @@
 
 
 <!-- on:name are dipstached events from the Component.
-     all {variable} getting set with data, they are exported from the component -->
+     All {variable} set with data, they are exported from the component -->
 
   <m-box id="appBox">
     {#if adminToggle === false && adminButtonToggle === true}
@@ -171,14 +170,14 @@
       {#if userCheck === true}
         {#if adminToggle === false}
           <DateRessourcePicker
-          on:selection={handleSelection}
-          on:logout={handleLogout} 
-          on:selectedDate={handleSelectedDate} 
-          on:selectedRessource={handleSelectedRessource} 
-          {nameCompany} {userEmail} {userName} {userSurname} {ressourceArray} {emailAdmin}/>
+            on:selection={handleSelection}
+            on:logout={handleLogout} 
+            on:selectedDate={handleSelectedDate} 
+            on:selectedRessource={handleSelectedRessource} 
+            {nameCompany} {userEmail} {userName} {userSurname} {ressourceArray} {emailAdmin}/>
         {/if}
         {#if (selectedRessource != undefined || selectedDate != undefined) && adminToggle === false}
-          <Calendar {appointmentLenght} {selection} {ressourceArray} {workingHours} {selectedDate} {selectedRessource} {userName} {userSurname} {userEmail}/>
+          <Calendar {appointmentLenght} {nameCompany} {emailAdmin} {selection} {ressourceArray} {workingHours} {selectedDate} {selectedRessource} {userName} {userSurname} {userEmail}/>
         {/if}
       {/if}
     </m-box>

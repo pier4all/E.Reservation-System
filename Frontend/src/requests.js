@@ -30,7 +30,6 @@ export function getReservationByDate(date) {
       .then((response) => {
         console.log(response.data.reservations);
       })
-
       .catch((error) => {
         console.log("Error: ", error);
       });
@@ -49,8 +48,6 @@ export function deleteReservation(id) {
   });
 }
 
-export function sayHello () {
-  console.log("HAllo")
-}  
+
 
 

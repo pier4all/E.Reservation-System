@@ -70,7 +70,7 @@
    * ressource object and push to array.
    * @param {string} ressourceInput
    */
-  const addRessource = (ressourceInput) => {
+  const addRessource = () => {
     const id = Math.random();
     const ressource = {
       id: id,
@@ -78,6 +78,7 @@
     };
     ressourceArray.push(ressource);
     ressourceInput = null
+    ressourceArray = ressourceArray
   };
 
 </script>
@@ -116,13 +117,29 @@
         </m-row>
         <m-row class="inputRows">
           <m-col >
-            <label  for="inputRessourcen">Ressourcen:</label>
+            <label for="inputRessourcen">Ressourcen:</label>
           </m-col>
             <m-col>
-              <input  bind:value={ressourceInput}  type="text" required />
+              <input  bind:value={ressourceInput} type="text" required />
               <button id="addRessourceButton" type="button" on:click={() => addRessource(ressourceInput)}>+</button>
             </m-col>
           </m-row>
+          {#if ressourceArray.length > 0}
+          <m-row>
+            <m-col>
+              <label  for="ressourceList" id="labelEinRessourcen">Eingetragene Ressourcen: </label>
+            </m-col>
+            <m-col>
+              <m-box>
+              <ul id="ressourceList">
+                  {#each ressourceArray as ressource}
+                    <li id="liRessource">{JSON.stringify(ressource.name).slice(1, ressource.name.length + 1)}<li>
+                 {/each} 
+               </ul>
+              </m-box>
+              </m-col>
+          </m-row>
+          {/if}
         <m-row class="inputRows">
           <m-col>
             <label for="appointmentLenght">Termindauer:</label>
@@ -136,7 +153,7 @@
             </select>
           </m-col>
         </m-row>
-        <m-row />
+        <m-row/>
         <m-row class="inputRows" id="registredUserRow">
           <m-col>
             <label for="registredUser">Registrierte Benutzer:</label>
@@ -300,5 +317,15 @@
     box-shadow: inset 100px 0 0 0 #0ffd02;
     color: rgb(39, 38, 38);
   }
-  
+
+  #ressourceList {
+    padding-right: 25%;
+
+  }
+
+  #liRessource {
+    margin-top: 2%; 
+    font-size: larger;
+    margin-left: 25%;
+  }  
 </style>

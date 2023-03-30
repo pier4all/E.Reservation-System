@@ -26,7 +26,6 @@
    * reactivity, if selection changes
    */
   $: if(selection){
-    console.log(selection)
       if(selection === "Ressource"){
         selectedRadioRessource = true
         selectedRadioDate = false
@@ -36,11 +35,8 @@
         selectedRadioRessource = false
       }
       dispatch("selection", selection)
-    }
+  }
   
-
- 
-
   /**
     *  reactive, if dateInput changes
     */
@@ -76,12 +72,14 @@
     reservationToggle = !reservationToggle
     getAllReservations().then(res => reservations = res)
   };
+  
   /**
    * handles the logout event click
    */
   const handleLogout = () => {
           dispatch("logout", emailAdmin)
-      }
+  }
+
 </script>
 
 
@@ -102,6 +100,9 @@
         <m-box class="infoBox">
             <h3>Bereits gebuchte Termine</h3>
             {#if reservationToggle === true}
+            {#if reservations === null}
+             <p style="color: red">Keine Buchungen gefunden. </p>
+            {/if}
             {#if reservations != null}
               {#each reservations as [id, res]}
                 <div>
@@ -109,9 +110,9 @@
                         {res.appDay + " / " + res.appTime + " / " + res.appRes}
                   </m-col>
                   <m-col>
-                        <button
+                       <!-- <button
                         on:click={() => deleteBookedReservation(id)}
-                        id="deleteReservationButton">X</button>
+                        id="deleteReservationButton">X</button>-->
                   </m-col>
                 </div>
               {/each}
@@ -197,8 +198,6 @@
     border-color: #020202;
     margin-top: 2%;
     margin-bottom: 2%;
-    
-
   }
 
   #textPickerRow {
@@ -264,6 +263,8 @@
     color: #020202;
     margin-bottom: 1%;
     margin-left: 2px;
+    width: 5%;
+    height: 10%;
   }
 
   #showButton {
@@ -275,15 +276,16 @@
   }
 
   #buttonDiv {
-            text-align: right;
-      }
-      button {
-            background-color: rgb(26, 26, 25);
-            color: aliceblue;
-            height: 50px;
-            width: 80px;
-            margin-left: 1%;
-            margin-bottom: 2%;
-            font-size: large;
-      }
+    text-align: right;
+  }
+  
+  button {
+    background-color: rgb(26, 26, 25);
+    color: aliceblue;
+    height: 50px;
+    width: 80px;
+    margin-left: 1%;
+    margin-bottom: 2%;
+    font-size: large;
+  }
 </style>

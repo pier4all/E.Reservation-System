@@ -2,8 +2,8 @@
       import { createEventDispatcher } from "svelte";
       const dispatch = createEventDispatcher();
     
+      // click event
       const handleClick = () => {
-        console.log("back");
         dispatch("backClick", true);
       };
 </script>

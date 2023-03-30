@@ -41,9 +41,7 @@ module.exports.getDates = (req) => {
 
 // deleting a reservation with the reservation id
 module.exports.deleteReservation = (req, context) => {
-    console.log("context", context.request.params)
       const id = context.request.params.id
       cache.delete(id.toString());
-      console.log("cache", cache)
       return {status: "reservation deleted"}
 }

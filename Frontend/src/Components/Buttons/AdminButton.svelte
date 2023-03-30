@@ -4,7 +4,6 @@
     
       // handles the button click
       const handleClick = () => {
-        console.log("Admin");
         dispatch("adminClick", true);
       };
     </script>

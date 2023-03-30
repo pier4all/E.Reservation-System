@@ -7,15 +7,16 @@
   export let userSurname;
   export let emailAdmin;
   export let nameCompany;
+  export let selection
+  export let selectedDate
 
   /**
    * starting post request with axios
    * @param {object} selectedAppointment
    */
   const postRes = (selectedAppointment) => {
-    console.log("Buchung durchgeführt! ", selectedAppointment);
     postReservation(selectedAppointment);
-    dispatch("Booked", true);
+    dispatch("Booked", selection, selectedDate);
   };
 </script>
 

@@ -3,9 +3,11 @@
       import { createEventDispatcher } from "svelte";
       const dispatch = createEventDispatcher();
 
+      // clickEvent
       const handleLogout = () => {
           dispatch("logout", true)
       }
+
 </script>
 
 <div id="buttonDiv">
